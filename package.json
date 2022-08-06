@@ -5,7 +5,22 @@
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"repository": "https://github.com/nebulatgs/sk-lanyard",
-	"author": "nebulatgs",
+	"author": "Nebula <infinitewormhole@gmail.com>",
+	"bugs": {
+		"url": "https://github.com/nebulatgs/sk-lanyard/issues"
+	},
+	"files": [
+		"dist",
+		"package.json"
+	],
+	"keywords": [
+		"typescript",
+		"svelte",
+		"sveltekit",
+		"lanyard",
+		"discord",
+		"presence"
+	],
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
