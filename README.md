@@ -1,12 +1,22 @@
 # `sk-lanyard` (SvelteKit + Lanyard)
-## [Demo](https://stackblitz.com/edit/sk-lanyard-demo?file=src/routes/index.svelte)
-
-### SvelteKit integration with [Lanyard](https://github.com/Phineas/lanyard), an API to fetch your Discord presence.
+SvelteKit integration with [Lanyard](https://github.com/Phineas/lanyard), an API to fetch your Discord presence.
 
 `sk-lanyard` is fully typed and supports the entire Lanyard API, using both REST and WebSockets.
 
 The `useLanyard` function returns a reactive store containing presence data.
 
+## [Demo](https://stackblitz.com/edit/sk-lanyard-demo?file=src/routes/index.svelte)
+```html
+<script>
+    import { useLanyard } from 'sk-lanyard';
+    const presence = useLanyard({ method: 'rest', id: '524722785302609941' })
+</script>
+
+<pre>
+    <!-- Because presence is a reactive store, use $presence to access the data -->
+    <code>{JSON.stringify($presence ?? {}, null, 2)}</code>
+</pre>
+```
 
 ## Usage
 ```ts
