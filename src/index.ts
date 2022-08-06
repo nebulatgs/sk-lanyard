@@ -64,6 +64,7 @@ async function lanyardRest(config: LanyardConfigRest, set: Subscriber<LanyardDat
             throw new Error(res.error.message);
         }
     };
+    updateStore();
     setInterval(updateStore, config.pollInterval ?? 5000);
 }
 
