@@ -1,6 +1,6 @@
 {
 	"name": "sk-lanyard",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "SvelteKit integration with Lanyard, an API to fetch your Discord presence",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
