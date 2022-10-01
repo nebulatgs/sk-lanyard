@@ -1,4 +1,5 @@
-import { Readable, readable, Subscriber } from 'svelte/store';
+import { Readable, Subscriber, readable } from 'svelte/store';
+
 import {
 	LanyardConfig,
 	LanyardConfigAll,
@@ -27,26 +28,18 @@ export function useLanyard(
 export function useLanyard(config: LanyardConfigRest | LanyardConfigOne): Readable<LanyardData>;
 export function useLanyard(config: LanyardConfig) {
 	if (config.method === 'rest') {
-		const store = readable<LanyardData>(undefined, (set) => {
-			lanyardRest(config, set);
-		});
-		return store;
+		return readable<LanyardData>(undefined, (set) => lanyardRest(config, set));
 	}
 	if (config.method === 'ws') {
 		if ('id' in config) {
-			const store = readable<LanyardData>(undefined, (set) => {
-				lanyardWS(config, set);
-			});
-			return store;
+			return readable<LanyardData>(undefined, (set) => lanyardWS(config, set));
 		}
-		const store = readable<Record<string, LanyardData>>(undefined, (set) => {
-			lanyardWS(config, set);
-		});
-		return store;
+
+		return readable<Record<string, LanyardData>>(undefined, (set) => lanyardWS(config, set));
 	}
 }
 
-async function lanyardRest(config: LanyardConfigRest, set: Subscriber<LanyardData>) {
+function lanyardRest(config: LanyardConfigRest, set: Subscriber<LanyardData>) {
 	if (typeof window === 'undefined') {
 		return;
 	}
@@ -65,10 +58,12 @@ async function lanyardRest(config: LanyardConfigRest, set: Subscriber<LanyardDat
 		}
 	};
 	updateStore();
-	setInterval(updateStore, config.pollInterval ?? 5000);
+	const timer = setInterval(updateStore, config.pollInterval ?? 5000);
+
+	return () => clearInterval(timer);
 }
 
-async function lanyardWS<T extends InitState>(config: LanyardConfigWS, set: Subscriber<T>) {
+function lanyardWS<T extends InitState>(config: LanyardConfigWS, set: Subscriber<T>) {
 	if (typeof window === 'undefined') {
 		return;
 	}
@@ -103,57 +98,60 @@ async function lanyardWS<T extends InitState>(config: LanyardConfigWS, set: Subs
 			ws.addEventListener('error', err);
 		});
 
-	await waitInit();
-
-	if ('all' in config) {
-		send<LanyardInitialize>({
-			op: LanyardOpcode.INITIALIZE,
-			d: {
-				subscribe_to_all: true
-			}
-		});
-	}
-	if ('ids' in config) {
-		send<LanyardInitialize>({
-			op: LanyardOpcode.INITIALIZE,
-			d: {
-				subscribe_to_ids: config.ids
-			}
-		});
-	}
-	if ('id' in config) {
-		send<LanyardInitialize>({
-			op: LanyardOpcode.INITIALIZE,
-			d: {
-				subscribe_to_id: config.id
-			}
-		});
-	}
-	const hello = await once<LanyardHello>();
-	const heartbeatInterval = hello.d.heartbeat_interval;
-
-	const heartbeat = () => {
-		send<LanyardHeartbeat>({
-			op: LanyardOpcode.HEARTBEAT,
-			d: undefined
-		});
-	};
-	setInterval(heartbeat, heartbeatInterval);
-
-	const init = await once<LanyardMessage<T>>();
-	const state = init.d;
-	set(state);
-
-	recv((event) => {
-		const update: LanyardEvent<'PRESENCE_UPDATE'> = JSON.parse(event.data);
-		if ('user_id' in update.d) {
-			const { user_id, ...data } = update.d;
-			(state as Record<string, LanyardData>)[update.d.user_id] = data;
-			set(state);
-		} else {
-			set({ ...update.d } as T);
+	waitInit().then(async () => {
+		if ('all' in config) {
+			send<LanyardInitialize>({
+				op: LanyardOpcode.INITIALIZE,
+				d: {
+					subscribe_to_all: true
+				}
+			});
 		}
+		if ('ids' in config) {
+			send<LanyardInitialize>({
+				op: LanyardOpcode.INITIALIZE,
+				d: {
+					subscribe_to_ids: config.ids
+				}
+			});
+		}
+		if ('id' in config) {
+			send<LanyardInitialize>({
+				op: LanyardOpcode.INITIALIZE,
+				d: {
+					subscribe_to_id: config.id
+				}
+			});
+		}
+
+		const hello = await once<LanyardHello>();
+		const heartbeatInterval = hello.d.heartbeat_interval;
+
+		const heartbeat = () => {
+			send<LanyardHeartbeat>({
+				op: LanyardOpcode.HEARTBEAT,
+				d: undefined
+			});
+		};
+		setInterval(heartbeat, heartbeatInterval);
+
+		const init = await once<LanyardMessage<T>>();
+		const state = init.d;
+		set(state);
+
+		recv((event) => {
+			const update: LanyardEvent<'PRESENCE_UPDATE'> = JSON.parse(event.data);
+			if ('user_id' in update.d) {
+				const { user_id, ...data } = update.d;
+				(state as Record<string, LanyardData>)[update.d.user_id] = data;
+				set(state);
+			} else {
+				set({ ...update.d } as T);
+			}
+		});
 	});
+
+	return () => ws.close();
 }
 
 export * from './configTypes';
