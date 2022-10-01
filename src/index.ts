@@ -142,6 +142,8 @@ function lanyardWS<T extends InitState>(config: LanyardConfigWS, set: Subscriber
 		recv((event) => {
 			const update: LanyardEvent<'PRESENCE_UPDATE'> = JSON.parse(event.data);
 			if ('user_id' in update.d) {
+				// user_id is removed from the object
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { user_id, ...data } = update.d;
 				(state as Record<string, LanyardData>)[update.d.user_id] = data;
 				set(state);
