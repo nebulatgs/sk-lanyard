@@ -59,6 +59,8 @@ export interface Timestamps {
 
 export interface DiscordUser {
 	username: string;
+	global_name: string;
+	display_name: string;
 	public_flags: number;
 	id: string;
 	discriminator: string;
