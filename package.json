@@ -1,9 +1,10 @@
 {
 	"name": "sk-lanyard",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "SvelteKit integration with Lanyard, an API to fetch your Discord presence",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
+	"module": "dist/index.js",
 	"repository": "https://github.com/nebulatgs/sk-lanyard",
 	"author": "Nebula <infinitewormhole@gmail.com>",
 	"bugs": {
