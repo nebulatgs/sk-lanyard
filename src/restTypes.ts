@@ -25,6 +25,12 @@ export interface LanyardData {
 	activities: Activity[];
 }
 
+export interface Emoji {
+	name: string;
+	id: number;
+	animated: boolean;
+}
+
 export interface Activity {
 	type: number;
 	timestamps: Timestamps;
@@ -34,6 +40,7 @@ export interface Activity {
 	party?: Party;
 	name: string;
 	id: string;
+	emoji?: Emoji;
 	flags?: number;
 	details: string;
 	created_at: number;
