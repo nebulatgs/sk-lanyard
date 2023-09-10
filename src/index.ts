@@ -156,6 +156,6 @@ function lanyardWS<T extends InitState>(config: LanyardConfigWS, set: Subscriber
 	return () => ws.close();
 }
 
-export * from './configTypes';
-export * from './restTypes';
-export * from './wsTypes';
+export type * from './configTypes';
+export type * from './restTypes';
+export type * from './wsTypes';
