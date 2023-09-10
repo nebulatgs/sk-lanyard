@@ -27,7 +27,7 @@ export interface LanyardData {
 
 export interface Emoji {
 	name: string;
-	id: number;
+	id: string;
 	animated: boolean;
 }
 
